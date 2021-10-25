@@ -3,10 +3,13 @@ package com.dji.final_project;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -14,8 +17,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,10 +37,36 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dji.common.flightcontroller.FlightControllerState;
+import dji.common.mission.waypoint.Waypoint;
+import dji.common.mission.waypoint.WaypointMission;
+import dji.common.mission.waypoint.WaypointMissionDownloadEvent;
+import dji.common.mission.waypoint.WaypointMissionExecutionEvent;
+import dji.common.mission.waypoint.WaypointMissionFinishedAction;
+import dji.common.mission.waypoint.WaypointMissionFlightPathMode;
+import dji.common.mission.waypoint.WaypointMissionHeadingMode;
+import dji.common.mission.waypoint.WaypointMissionUploadEvent;
+import dji.common.useraccount.UserAccountState;
+import dji.common.util.CommonCallbacks;
+import dji.sdk.base.BaseProduct;
+import dji.sdk.flightcontroller.FlightController;
+import dji.common.error.DJIError;
+import dji.sdk.mission.waypoint.WaypointMissionOperator;
+import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
+import dji.sdk.products.Aircraft;
+import dji.sdk.sdkmanager.DJISDKManager;
+import dji.sdk.useraccount.UserAccountManager;
+
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,GoogleMap.OnMapClickListener,OnMapReadyCallback{
+
+    protected static final String TAG = "FinalProjectActivity";
+
     private MapView mMapView;
     private GoogleMap map;
     private RelativeLayout mMapContainer;
@@ -39,6 +75,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isAdd = false;
     private boolean isHot = false;
     private boolean Hot_point_exist = true;
+
+    private float altitude = 100.0f;
+    private float mSpeed = 10.0f;
+
+    private List<Waypoint> waypointList = new ArrayList<>();
+
+   // public static WaypointMission.Builder waypointMissionBuilder;
+    //private FlightController mFlightController;
+    //private WaypointMissionOperator instance;
+    //private WaypointMissionFinishedAction mFinishedAction = WaypointMissionFinishedAction.NO_ACTION;
+    //private WaypointMissionHeadingMode mHeadingMode = WaypointMissionHeadingMode.AUTO;
+
 
     float[] results = new float[1];
     private final Map<Integer, Marker> mMarkers = new ConcurrentHashMap<Integer, Marker>();
@@ -227,8 +275,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setUpMap() {
         map.setOnMapClickListener(this);// add the listener for click for amap object
-
     }
+
+
+
+
+
 
     @Override
     protected void onStart() {
@@ -348,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.config:
-
+                //showSettingDialog();
                 break;
 
             default:
