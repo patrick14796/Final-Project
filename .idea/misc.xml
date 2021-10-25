@@ -4,7 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/patri/AndroidStudioProjects/FinalProject/app/src/main/res/drawable/ic_full_screen_black_24dp.xml" value="0.14635416666666667" />
-        <entry key="..\:/Users/patri/AndroidStudioProjects/FinalProject/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/patri/AndroidStudioProjects/FinalProject/app/src/main/res/drawable/round_btn_disable.xml" value="0.14635416666666667" />
+        <entry key="..\:/Users/patri/AndroidStudioProjects/FinalProject/app/src/main/res/drawable/selector_white_gray.xml" value="0.14635416666666667" />
+        <entry key="..\:/Users/patri/AndroidStudioProjects/FinalProject/app/src/main/res/layout/activity_connection.xml" value="0.19791666666666666" />
+        <entry key="..\:/Users/patri/AndroidStudioProjects/FinalProject/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/patri/AndroidStudioProjects/FinalProject/app/src/main/res/layout/dialog_waypointsetting.xml" value="0.22826086956521738" />
       </map>
     </option>
