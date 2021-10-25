@@ -34,9 +34,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MapView mMapView;
     private GoogleMap map;
     private RelativeLayout mMapContainer;
-    private Button locate, adding, clear;
+    private Button locate, adding, clear,hotPoint;
     private Button config, upload, start, stop;
     private boolean isAdd = false;
+    private boolean isHot = false;
+    private boolean Hot_point_exist = true;
 
     float[] results = new float[1];
     private final Map<Integer, Marker> mMarkers = new ConcurrentHashMap<Integer, Marker>();
@@ -62,17 +64,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initUI() {
         adding = (Button) findViewById(R.id.adding);
+        hotPoint= (Button) findViewById(R.id.hotPoint);
 
+        hotPoint.setOnClickListener(this);
         adding.setOnClickListener(this);
     }
 
     private void enableDisableAdd(){
         if (isAdd == false) {
             isAdd = true;
+            Toast.makeText(getApplicationContext(),"You can Add points as you wish...", Toast.LENGTH_LONG).show();
             adding.setText("Exit");
         }else{
             isAdd = false;
             adding.setText("Add");
+        }
+    }
+
+    private void enableDisableHotPoint(){
+        if (isHot == false) {
+            isHot = true;
+            Toast.makeText(getApplicationContext(),"You can Add only ONE HOT POINT!!!", Toast.LENGTH_LONG).show();
+            hotPoint.setText("Exit");
+        }else{
+            isHot = false;
+            hotPoint.setText("Hot");
         }
     }
 
@@ -139,11 +155,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onMapClick(LatLng point) {
-        if (isAdd == true){
+        if (isAdd == true)
+        {
             Toast.makeText(getApplicationContext(),"Its fine here", Toast.LENGTH_LONG).show();
             markWaypoint(point);
         }
-        else{
+
+        if(isAdd == false)
+        {
+            Toast.makeText(getApplicationContext(),"Cannot Add Waypoint", Toast.LENGTH_LONG).show();
+        }
+
+        if(isHot == true && Hot_point_exist == true)
+        {
+            Toast.makeText(getApplicationContext(),"Its fine here", Toast.LENGTH_LONG).show();
+            markHotWaypoint(point);
+        }
+
+        if (isHot == false || Hot_point_exist == false)
+        {
             Toast.makeText(getApplicationContext(),"Cannot Add Waypoint", Toast.LENGTH_LONG).show();
         }
     }
@@ -158,6 +188,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMarkers.put(mMarkers.size(), marker);
     }
 
+
+    private void markHotWaypoint(LatLng point){
+        if(Hot_point_exist == true)
+        {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(point);
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            Marker marker = map.addMarker(markerOptions);
+            mMarkers.put(mMarkers.size(), marker);
+            Hot_point_exist = false;
+        }
+
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -299,6 +342,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 enableDisableAdd();
                 break;
             }
+
+            case R.id.hotPoint:
+                enableDisableHotPoint();
+                break;
 
             case R.id.config:
 
