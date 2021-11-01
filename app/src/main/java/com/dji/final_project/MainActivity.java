@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -14,11 +13,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.SurfaceTexture;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.util.Log;
+import android.view.TextureView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -48,6 +50,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 
+import dji.common.camera.SystemState;
 import dji.common.flightcontroller.FlightControllerState;
 import dji.common.mission.waypoint.Waypoint;
 import dji.common.mission.waypoint.WaypointMission;
@@ -57,9 +60,13 @@ import dji.common.mission.waypoint.WaypointMissionFinishedAction;
 import dji.common.mission.waypoint.WaypointMissionFlightPathMode;
 import dji.common.mission.waypoint.WaypointMissionHeadingMode;
 import dji.common.mission.waypoint.WaypointMissionUploadEvent;
+import dji.common.product.Model;
 import dji.common.useraccount.UserAccountState;
 import dji.common.util.CommonCallbacks;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.camera.Camera;
+import dji.sdk.camera.VideoFeeder;
+import dji.sdk.codec.DJICodecManager;
 import dji.sdk.flightcontroller.FlightController;
 import dji.common.error.DJIError;
 import dji.sdk.mission.waypoint.WaypointMissionOperator;
@@ -67,6 +74,8 @@ import dji.sdk.mission.waypoint.WaypointMissionOperatorListener;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 import dji.sdk.useraccount.UserAccountManager;
+
+
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,GoogleMap.OnMapClickListener,OnMapReadyCallback{
@@ -81,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isAdd = false;
     private boolean isHot = false;
     private boolean Hot_point_exist = true;
+
     float[] results = new float[1];
 
     private double droneLocationLat = 181, droneLocationLng = 181;
@@ -90,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private float altitude = 100.0f;
     private float mSpeed = 10.0f;
+    private Handler handler;
 
     private List<Waypoint> waypointList = new ArrayList<>();
 
@@ -109,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ImageButton imageviewBTN = findViewById(R.id.btn_full_screen_map);
         LinearLayout firstMenu = findViewById(R.id.firstMenu);
         LinearLayout secondMenu = findViewById(R.id.secondMenu);
+        handler = new Handler();
+
 
         mMapView.getMapAsync(this);
         mMapView.onCreate(savedInstanceState);
@@ -140,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void initUI() {
+
         adding = (Button) findViewById(R.id.adding);
         hotPoint= (Button) findViewById(R.id.hotPoint);
         locate = (Button) findViewById(R.id.locate);
@@ -148,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         upload = (Button) findViewById(R.id.upload);
         start = (Button) findViewById(R.id.start);
         stop = (Button) findViewById(R.id.stop);
+
+
 
         stop.setOnClickListener(this);
         start.setOnClickListener(this);
@@ -160,10 +176,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+
+
     private void enableDisableAdd(){
         if (isAdd == false) {
             isAdd = true;
-            Toast.makeText(getApplicationContext(),"You can Add points as you wish...", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"You can Add points as you wish(add more than 1 point)...", Toast.LENGTH_LONG).show();
             adding.setText("Exit");
         }else{
             isAdd = false;
@@ -211,19 +229,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void onClickLog(View v){
-        EditText UserName = findViewById(R.id.name);
-        EditText password = findViewById(R.id.Password);
+
         Button Login = findViewById(R.id.logbutton);
         ImageButton imageviewBTN = findViewById(R.id.btn_full_screen_map);
         LinearLayout firstMenu = findViewById(R.id.firstMenu);
         LinearLayout secondMenu = findViewById(R.id.secondMenu);
 
-        if ((UserName.getText().toString()).matches("")  || (password.getText().toString()).matches(""))
-        {
-            Toast.makeText(getApplicationContext(),"Please Enter Details!!!", Toast.LENGTH_LONG).show();
-        }
-        else {
-            Toast.makeText(getApplicationContext(),"You succeeded!", Toast.LENGTH_LONG).show();
             //MapView map = findViewById(R.id.mapView);
             RelativeLayout mapContainer = findViewById(R.id.map_container);
             mMapView.setVisibility(View.VISIBLE);
@@ -235,17 +246,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Login.setVisibility(View.INVISIBLE);
 
 
-            String floatToString =String.valueOf(results[0]);
-            Toast.makeText(getApplicationContext(),"The Distance is: "+floatToString + " meters", Toast.LENGTH_LONG).show();
+           // String floatToString =String.valueOf(results[0]);
+           // Toast.makeText(getApplicationContext(),"The Distance is: "+floatToString + " meters", Toast.LENGTH_LONG).show();
 
-        }
+    }
 
+    public void onClickMap(View v){
+        Button Map = findViewById(R.id.Camera);
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
 
     }
 
     @Override
     public void onMapClick(LatLng point) {
-        if (isAdd == true)
+        if (isAdd == true && isHot == false)
         {
             Toast.makeText(getApplicationContext(),"Its fine here", Toast.LENGTH_LONG).show();
             markWaypoint(point);
@@ -262,17 +277,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        if(isAdd == false)
+        if(isAdd == false && isHot == false)
+        {
+            //Toast.makeText(getApplicationContext(),"Cannot Add Waypoint", Toast.LENGTH_LONG).show();
+        }
+
+        if(isAdd == true && isHot == true)
         {
             Toast.makeText(getApplicationContext(),"Cannot Add Waypoint", Toast.LENGTH_LONG).show();
         }
 
-        if(isHot == true && Hot_point_exist == true)
+        if(isHot == true && Hot_point_exist == false && isAdd == false)
+        {
+            Toast.makeText(getApplicationContext(),"Cannot Add Waypoint", Toast.LENGTH_LONG).show();
+        }
+
+        if(isHot == true && Hot_point_exist == true && isAdd == false)
         {
             Toast.makeText(getApplicationContext(),"Its fine here", Toast.LENGTH_LONG).show();
             markHotWaypoint(point);
             Waypoint mWaypoint = new Waypoint(point.latitude, point.longitude, altitude);
-            //Add Waypoints to Waypoint arraylist;
+             //Add Waypoints to Waypoint arraylist;
             if (waypointMissionBuilder != null) {
                 waypointList.add(mWaypoint);
                 waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
@@ -284,10 +309,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        if (isHot == false || Hot_point_exist == false)
-        {
-            Toast.makeText(getApplicationContext(),"Cannot Add Waypoint", Toast.LENGTH_LONG).show();
-        }
+        //if (isHot == false || Hot_point_exist == false)
+        //{
+          //  Toast.makeText(getApplicationContext(),"Cannot Add Waypoint", Toast.LENGTH_LONG).show();
+        //}
     }
 
 
@@ -477,6 +502,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 waypointList.clear();
                 waypointMissionBuilder.waypointList(waypointList);
                 updateDroneLocation();
+                Hot_point_exist = true;
                 break;
             }
             case R.id.config: {
@@ -516,8 +542,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loginAccount();
     }
 
-    private void loginAccount(){
 
+
+    private void loginAccount(){
         UserAccountManager.getInstance().logIntoDJIUserAccount(this,
                 new CommonCallbacks.CompletionCallbackWith<UserAccountState>() {
                     @Override
@@ -526,10 +553,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     @Override
                     public void onFailure(DJIError error) {
-                        setResultToToast("Login Error:"
+                        showToast("Login Error:"
                                 + error.getDescription());
                     }
                 });
+    }
+
+    public void showToast(final String msg) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void initFlightController() {

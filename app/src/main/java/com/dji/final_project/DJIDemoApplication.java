@@ -16,6 +16,9 @@ import dji.common.error.DJIError;
 import dji.common.error.DJISDKError;
 import dji.sdk.base.BaseComponent;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.camera.Camera;
+import dji.sdk.products.Aircraft;
+import dji.sdk.products.HandHeld;
 import dji.sdk.sdkmanager.DJISDKInitEvent;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -24,7 +27,6 @@ public class DJIDemoApplication extends Application {
 
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
 
-    private DJISDKManager.SDKManagerCallback mDJISDKManagerCallback;
     private static BaseProduct mProduct;
     public Handler mHandler;
 
@@ -50,6 +52,8 @@ public class DJIDemoApplication extends Application {
         return mProduct;
     }
 
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -60,15 +64,13 @@ public class DJIDemoApplication extends Application {
          * When starting SDK services, an instance of interface DJISDKManager.DJISDKManagerCallback will be used to listen to
          * the SDK Registration result and the product changing.
          */
-        mDJISDKManagerCallback = new DJISDKManager.SDKManagerCallback() {
+        DJISDKManager.SDKManagerCallback mDJISDKManagerCallback = new DJISDKManager.SDKManagerCallback() {
 
             //Listens to the SDK registration result
             @Override
             public void onRegister(DJIError error) {
-
+                Handler handler = new Handler(Looper.getMainLooper());
                 if(error == DJISDKError.REGISTRATION_SUCCESS) {
-
-                    Handler handler = new Handler(Looper.getMainLooper());
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -79,10 +81,7 @@ public class DJIDemoApplication extends Application {
                     DJISDKManager.getInstance().startConnectionToProduct();
 
                 } else {
-
-                    Handler handler = new Handler(Looper.getMainLooper());
                     handler.post(new Runnable() {
-
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(), "Register sdk fails, check network is available", Toast.LENGTH_LONG).show();

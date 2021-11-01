@@ -14,16 +14,21 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"
+    <uses-permission
+        android:name="android.permission.CHANGE_CONFIGURATION"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
+    <uses-permission
+        android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
         tools:ignore="ProtectedPermissions" />
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature
         android:name="android.hardware.usb.accessory"
         android:required="true" />
@@ -34,7 +39,6 @@
         android:glEsVersion="0x00020000"
         android:required="true" />
 
-
     <application
         android:name=".MApplication"
         android:allowBackup="true"
@@ -43,15 +47,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject">
+        <activity
+            android:name=".CameraActivity"
+            android:exported="true" />
 
-        <!-- DJI SDK -->
-
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" /> <!-- DJI SDK -->
         <uses-library android:name="com.android.future.usb.accessory" />
-        <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
         <meta-data
             android:name="com.dji.sdk.API_KEY"
-            android:value="b49a2b34a51087f80075fc4b" /> // DJI App key here
+            android:value="b49a2b34a51087f80075fc4b" />
+
+        <service android:name="dji.sdk.sdkmanager.DJIGlobalService"></service>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -63,11 +72,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAEWS2_fbF49kI3BuRnAb0gK5tT7Ef1j9U" />
-
-        <service android:name="dji.sdk.sdkmanager.DJIGlobalService"></service>
-
-
+            android:value="AIzaSyAEWS2_fbF49kI3BuRnAb0gK5tT7Ef1j9U" /> <!-- DJI SDK -->
         <activity
             android:name=".ConnectionActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
@@ -86,17 +91,9 @@
                 android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
                 android:resource="@xml/accessory_filter" />
         </activity>
-
-
-
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-        </activity>
-
-
-
-
+            android:exported="true"></activity>
     </application>
 
 </manifest>
