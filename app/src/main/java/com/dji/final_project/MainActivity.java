@@ -209,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void fullscreenbtnclick(View v) {
         RelativeLayout mapContainer = findViewById(R.id.map_container);
         Button Login = findViewById(R.id.logbutton);
+        Button Camera = findViewById(R.id.Camera);
         LinearLayout firstMenu = findViewById(R.id.firstMenu);
         LinearLayout secondMenu = findViewById(R.id.secondMenu);
 
@@ -222,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //contractMapAnimation();
             collapse(mapContainer);
             Login.setVisibility(View.VISIBLE);
+            Camera.setVisibility(View.VISIBLE);
             firstMenu.setVisibility(View.INVISIBLE);
             secondMenu.setVisibility(View.INVISIBLE);
         }
@@ -231,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClickLog(View v){
 
         Button Login = findViewById(R.id.logbutton);
+        Button Camera = findViewById(R.id.Camera);
         ImageButton imageviewBTN = findViewById(R.id.btn_full_screen_map);
         LinearLayout firstMenu = findViewById(R.id.firstMenu);
         LinearLayout secondMenu = findViewById(R.id.secondMenu);
@@ -244,15 +247,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             expand(mapContainer);
             mMapLayoutState =1;
             Login.setVisibility(View.INVISIBLE);
-
-
-           // String floatToString =String.valueOf(results[0]);
-           // Toast.makeText(getApplicationContext(),"The Distance is: "+floatToString + " meters", Toast.LENGTH_LONG).show();
-
+            Camera.setVisibility(View.INVISIBLE);
     }
 
-    public void onClickMap(View v){
-        Button Map = findViewById(R.id.Camera);
+    public void onClickCamera(View v){
+        Button Camera = findViewById(R.id.Camera);
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
 
